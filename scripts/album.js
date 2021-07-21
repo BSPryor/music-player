@@ -7,12 +7,65 @@ var createSongRow = function (songNumber, songName, songLength) {
    + '</tr>'
    ;
 
-   var $row = $(template);
+  var handleSongClick = function() {
+    var clickedSongNumber = $(this).attr('data-song-number');
 
-   return $row;
+    if (currentlyPlayingSongNumber !== null) {
+      var currentlyPlayingCell = $('.song-item-number[data-song-number="' + currentlyPlayingSongNumber + '"]');
+
+      currentlyPlayingCell.html(currentlyPlayingSongNumber);
+    }
+  
+    if (clickedSongNumber !== currentlyPlayingSongNumber) {
+      currentlyPlayingSongNumber = clickedSongNumber;
+
+      setSong(songNumber);
+
+      currentSoundFile.play();
+
+      $(this).html(pauseButtonTemplate);
+  
+    } else {
+      if (currentSoundFile.isPaused()) {
+        currentSoundFile.play();
+        $(this).html(pauseButtonTemplate);
+      } else {
+        currentSoundFile.pause();
+        $(this).html(playButtonTemplate);
+      }
+    }
+  };
+
+  var onHover = function () {
+    var songItem = $(this).find('.song-item-number');
+    var songNumber = songItem.attr('data-song-number');
+  
+    if (songNumber !== currentlyPlayingSongNumber) {
+      songItem.html(playButtonTemplate);
+    }
+  };
+  
+  var offHover = function () {
+    var songItem = $(this).find('.song-item-number');
+    var songNumber = songItem.attr('data-song-number');
+  
+    if (songNumber !== currentlyPlayingSongNumber){
+      songItem.html(songNumber);
+    }
+  };
+
+  var $row = $(template);
+
+  $row.find('.song-item-number').click(handleSongClick);
+  $row.hover(onHover, offHover);
+
+  return $row;
 };
 
+
 var setCurrentAlbum = function(album) {
+  currentAlbum = album;
+
   var $albumTitle = $('.album-view-title');
   var $albumArtist = $('.album-view-artist');
   var $albumReleaseInfo = $('.album-view-release-info');
@@ -31,3 +84,25 @@ var setCurrentAlbum = function(album) {
     $albumSongList.append($songRow);
   }
 };
+
+var setSong = function (songNumber) {
+  if (currentSoundFile) {
+    currentSoundFile.stop();
+  }
+
+  var songUrl = currentAlbum.songs[currentlyPlayingSongNumber - 1].audioUrl;
+
+  currentSoundFile = new buzz.sound(songUrl, {
+    formats: [ 'mp3' ],
+    preload: true,
+  });
+};
+
+var playButtonTemplate = '<a class="album-song-button"><span class="ion-play"></span></a>';
+var pauseButtonTemplate = '<a class="album-song-button"><span class="ion-pause"></span></a>';
+
+var currentlyPlayingSongNumber = null;
+var currentSoundFile = null;
+var currentAlbum = null;
+
+setCurrentAlbum(albums[0]);

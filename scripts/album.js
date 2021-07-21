@@ -92,11 +92,31 @@ var setSong = function (songNumber) {
 
   var songUrl = currentAlbum.songs[currentlyPlayingSongNumber - 1].audioUrl;
 
+  var currentlyPlayingSongName = currentAlbum.songs[currentlyPlayingSongNumber - 1].title;
+  var currentlyPlayingArtist = currentAlbum.artist; 
+  
+  $('.song-name').html(currentlyPlayingSongName);
+  $('.artist-name').html(currentlyPlayingArtist);
+  
   currentSoundFile = new buzz.sound(songUrl, {
     formats: [ 'mp3' ],
     preload: true,
   });
 };
+
+$('.ion-play').on('click', function () {
+  if(currentSoundFile === null) {
+    currentlyPlayingSongNumber = 1;
+    setSong(1); 
+    currentSoundFile.play();
+  } else if(currentSoundFile.isPaused()) {
+    currentSoundFile.play();
+  } else {
+    currentSoundFile.pause();
+  }
+})
+
+
 
 var playButtonTemplate = '<a class="album-song-button"><span class="ion-play"></span></a>';
 var pauseButtonTemplate = '<a class="album-song-button"><span class="ion-pause"></span></a>';

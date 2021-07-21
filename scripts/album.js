@@ -93,15 +93,18 @@ var setSong = function (songNumber) {
   var songUrl = currentAlbum.songs[currentlyPlayingSongNumber - 1].audioUrl;
 
   var currentlyPlayingSongName = currentAlbum.songs[currentlyPlayingSongNumber - 1].title;
-  var currentlyPlayingArtist = currentAlbum.artist; 
+  var currentlyPlayingArtist = currentAlbum.artist;
+  var currentlyPlayingTotalTime = currentAlbum.songs[currentlyPlayingSongNumber - 1].duration; 
   
   $('.song-name').html(currentlyPlayingSongName);
   $('.artist-name').html(currentlyPlayingArtist);
+  
   
   currentSoundFile = new buzz.sound(songUrl, {
     formats: [ 'mp3' ],
     preload: true,
   });
+  $('.total-time').html(buzz.toTimer(currentlyPlayingTotalTime));
 };
 
 $('.ion-play').on('click', function () {
@@ -114,7 +117,27 @@ $('.ion-play').on('click', function () {
   } else {
     currentSoundFile.pause();
   }
-})
+});
+
+$('.ion-skip-backward').on('click', function () {
+  if(currentlyPlayingSongNumber >= 0) {
+    currentlyPlayingSongNumber -= 1;
+    setSong();
+    currentSoundFile.play();
+  }
+});
+
+$('.ion-skip-forward').on('click', function () {
+  if (currentlyPlayingSongNumber-1 === currentAlbum.songs.length()){
+    currentlyPlayingSongNumber = 1;
+    setSong(1); 
+    currentSoundFile.play();
+  } else {
+    currentlyPlayingSongNumber += 1;
+    setSong();
+    currentSoundFile.play();
+  }
+});
 
 
 
